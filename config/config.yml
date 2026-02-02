@@ -1,0 +1,48 @@
+# Email AI Sorter Configuration
+
+email:
+  imap_server: "imap.gmail.com"
+  imap_port: 993
+  username: "your-email@gmail.com"
+  password: "your-app-password"
+  check_interval: 60  # seconds
+
+ai:
+  # Supported endpoints:
+  # - OpenAI: https://api.openai.com/v1/chat/completions
+  # - Anthropic: https://api.anthropic.com/v1/messages
+  # - Custom: your-custom-endpoint
+  
+  api_endpoint: "https://api.anthropic.com/v1/messages"
+  api_key: "your-api-key-here"
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 1024
+  temperature: 0.3
+
+labels:
+  # Define your email labels/folders
+  - "Work"
+  - "Personal"
+  - "Newsletter"
+  - "Important"
+  - "Spam"
+  - "Finance"
+  - "Shopping"
+
+sorting:
+  # Move emails after sorting
+  move_emails: true
+  
+  # Mark as read after sorting
+  mark_as_read: false
+  
+  # Only process unread emails
+  only_unread: true
+  
+  # Maximum emails to process per run
+  max_emails_per_run: 50
+
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "logs/email-sorter.log"
+  console: true
