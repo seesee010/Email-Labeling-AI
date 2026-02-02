@@ -1,24 +1,24 @@
-# Email-Labeling-AI
-Order emails into labels with ai
+# Email Labeling AI
 
-## Project Struct
-project/
-├── src/                    # Source Code
-│   ├── main.py            # Hauptprogramm
-│   ├── emailSorter.py     # IMAP & Email-Sortierung
-│   ├── aiClient.py        # AI API Integration
-│   ├── configLoader.py    # YAML Config Loader
-│   ├── logger.py          # Logging Setup
-│   ├── webConfig.py       # Flask Web-Interface
-│   └── templates/
-│       └── config.html    # HTML Config-Seite
-├── config/
-│   └── config.example.yaml # Beispiel-Konfiguration
-├── tests/
-│   └── test_configLoader.py # Tests
-├── .github/               # GitHub Templates
-├── CONTRIBUTING.md        # Deine Style-Guidelines
-├── AGENT.md              # Claude Code Instructions
-├── README.md             # Dokumentation
-├── QUICKSTART.md         # Quick-Start Guide
-└── setup.sh              # Setup-Script
+A Python tool to automatically label today's emails using AI.
+
+## Setup
+
+1. **Install Dependencies**
+   ```bash
+   pip install PyYAML openai
+   ```
+
+2. **Configuration**
+   Edit `config/config.yml` with your settings:
+   - `email`: IMAP connection details.
+   - `ai`: API key, model, and the **prompt** to control classification.
+
+3. **Usage**
+   ```bash
+   python src/main.py
+   ```
+
+## License
+License is under GPL-2.0,
+you can view the License file for more details.

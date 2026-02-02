@@ -1,2 +1,12 @@
 # Editor
 .vscode/
+
+# Environment variables
+.env
+
+# Python
+src/__pycache__/
+src/*.pyc
+
+# Config
+config/config.yml
