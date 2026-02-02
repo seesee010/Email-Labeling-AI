@@ -1,6 +1,21 @@
 import os
 import sys
 
+# Auto-activate venv if not already active to fix 'ModuleNotFoundError'
+def activate_venv():
+    # Only try to activate if we are not already in a venv
+    if sys.prefix == sys.base_prefix:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        venv_python = os.path.join(base_dir, 'venv', 'bin', 'python3')
+        
+        if os.path.exists(venv_python):
+            # Re-execute the script with the venv interpreter
+            os.execv(venv_python, [venv_python] + sys.argv)
+        else:
+            print("Warning: Virtual environment 'venv' not found. Please run './run.sh' first to create it.")
+
+activate_venv()
+
 # add current directory to path to find modules if running from src
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
