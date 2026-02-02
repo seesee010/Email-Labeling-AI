@@ -2,7 +2,7 @@ import yaml
 import json
 from openai import OpenAI
 
-def aiGetLabels(emails, config):
+def aiGetLabels(emails, config, existingLabels):
     # check if list is empty
     if not emails:
         return None
@@ -32,11 +32,19 @@ def aiGetLabels(emails, config):
         sender = emailData['from']
         emailListStr += f'- Title: "{title}"\n  From: {sender}\n'
     
+    # CRITICAL: Include existing labels in prompt
+    existingLabelsStr = ', '.join(existingLabels) if existingLabels else 'No labels exist yet'
+    
     # get prompt from config
     systemPrompt = config['ai'].get('prompt', "Classify these emails.")
     
-    # enhance system prompt to use sender info
+    # enhance system prompt to use sender info AND existing labels
     enhancedPrompt = f"""{systemPrompt}
+
+CRITICAL: You MUST use ONLY these existing Gmail labels:
+{existingLabelsStr}
+
+If none of the existing labels fit an email well, you can suggest a new label, but prefer using existing ones when possible.
 
 IMPORTANT: You will receive emails with both their subject line AND sender information.
 Use BOTH to make better classification decisions. For example:

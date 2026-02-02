@@ -62,6 +62,17 @@ def main():
         print(f"Error connecting to IMAP: {e}")
         return
 
+    # CRITICAL: Load existing Gmail labels at startup
+    # This is done once per run to know which labels exist
+    # Labels are stored in memory (not in a file)
+    try:
+        print("Loading existing Gmail labels...")
+        existingLabels = imap_handler.imapGetExistingLabels(connection)
+        print(f"Found {len(existingLabels)} existing labels: {', '.join(existingLabels[:5])}{'...' if len(existingLabels) > 5 else ''}")
+    except Exception as e:
+        print(f"Error loading labels: {e}")
+        existingLabels = []
+
     # CRITICAL: Get only NEW emails (after last processed timestamp)
     try:
         emails = imap_handler.imapGetEmails(connection, lastProcessedTimestamp)
@@ -85,8 +96,8 @@ def main():
         print(f"\n[Batch {batchNum}] Processing {len(batch)} emails...")
         
         try:
-            # aiGetLabels now receives full email objects with 'from' field
-            labels = ai_handler.aiGetLabels(batch, config)
+            # aiGetLabels now receives full email objects with 'from' field AND existing labels
+            labels = ai_handler.aiGetLabels(batch, config, existingLabels)
             
             # check if labels is None (no API key or error)
             if labels is None:
@@ -115,7 +126,7 @@ def main():
                     print(f"  → Label: '{label}'")
                     
                     try:
-                        success = imap_handler.imapLabelEmail(connection, emailItem['id'], label)
+                        success = imap_handler.imapLabelEmail(connection, emailItem['id'], label, existingLabels)
                         if success:
                             totalLabeled += 1
                         else:

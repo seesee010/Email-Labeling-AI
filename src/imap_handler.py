@@ -16,6 +16,46 @@ def imapConnect(config):
     
     return connection
 
+def imapGetExistingLabels(connection):
+    # get all existing Gmail labels/folders
+    # this is called once at startup to know which labels exist
+    
+    try:
+        status, folders = connection.list()
+        
+        if status != "OK":
+            return []
+        
+        labelList = []
+        
+        for folder in folders:
+            # decode folder name
+            folderStr = folder.decode() if isinstance(folder, bytes) else folder
+            
+            # extract folder name from IMAP list response
+            # format: (\HasNoChildren) "/" "LabelName"
+            parts = folderStr.split('"')
+            
+            if len(parts) >= 3:
+                folderName = parts[-2]
+                
+                # skip system folders
+                if folderName not in ['INBOX', '[Gmail]', '[Gmail]/All Mail', 
+                                      '[Gmail]/Drafts', '[Gmail]/Sent Mail', 
+                                      '[Gmail]/Spam', '[Gmail]/Starred', 
+                                      '[Gmail]/Trash', '[Gmail]/Important']:
+                    # remove [Gmail]/ prefix if present
+                    if folderName.startswith('[Gmail]/'):
+                        folderName = folderName.replace('[Gmail]/', '')
+                    
+                    labelList.append(folderName)
+        
+        return labelList
+        
+    except Exception as e:
+        print(f"Error getting existing labels: {e}")
+        return []
+
 def imapGetEmails(connection, lastProcessedTimestamp=None):
     # select inbox
     connection.select("INBOX")
@@ -104,20 +144,27 @@ def imapGetEmails(connection, lastProcessedTimestamp=None):
 
     return emailList
 
-def imapLabelEmail(connection, emailId, label):
-    # Gmail labels work via IMAP folders
-    # Gmail shows IMAP folders as labels in the UI
+def imapLabelEmail(connection, emailId, label, existingLabels):
+    # CRITICAL: Gmail labels work differently than standard IMAP
+    # We need to COPY the email to the label folder WITHOUT removing it from inbox
+    
+    # check if label exists in our known labels
+    if label not in existingLabels:
+        print(f"  ⚠ Label '{label}' doesn't exist. Creating it...")
+        
+        try:
+            # create new label folder
+            connection.create(label)
+            existingLabels.append(label)
+        except Exception as e:
+            print(f"  ✗ Failed to create label '{label}': {e}")
+            return False
     
     try:
-        # create label folder if it doesn't exist
-        connection.create(label)
-    except:
-        # folder already exists
-        pass
-    
-    try:
-        # copy email to label folder (Gmail displays this as a label)
+        # CRITICAL FIX: Use COPY to add label without moving email
+        # This keeps the email in INBOX and adds the label
         connection.copy(emailId, label)
+        
         print(f"  ✓ Applied Gmail label: {label}")
         return True
         
