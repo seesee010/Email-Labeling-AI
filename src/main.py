@@ -68,7 +68,7 @@ def main():
     try:
         print("Loading existing Gmail labels...")
         existingLabels = imap_handler.imapGetExistingLabels(connection)
-        print(f"Found {len(existingLabels)} existing labels: {', '.join(existingLabels[:5])}{'...' if len(existingLabels) > 5 else ''}")
+        print(f"Found {len(existingLabels)} existing labels: {', '.join(existingLabels)}")
     except Exception as e:
         print(f"Error loading labels: {e}")
         existingLabels = []
